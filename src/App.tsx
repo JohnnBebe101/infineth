@@ -32,7 +32,8 @@ import { ServiceCard } from './components/ServiceCard';
 import { ContactModal } from './components/ContactModal';
 import { CountUp } from './components/CountUp';
 import { Section } from './components/Section';
-import { SuccessStoriesSection } from './components/SuccessStoriesSection';
+// Import portfolio data for the ImageAccordion
+import { portfolioProjects } from './data/portfolioData';
 import { CorporatePages } from './components/CorporatePages';
 import { 
   InfrastructurePages, 
@@ -80,9 +81,31 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
       setContactSubject(subject);
       setIsContactOpen(true);
     }
-  }, []);
+   }, []);
 
-   const [currentPage, setCurrentPage] = useState<PageID>(initialRoute.page);
+    // Initialize ImageAccordion for success stories
+    useEffect(() => {
+      // Import the initImageAccordion function dynamically to avoid SSR issues
+      import('./components/ImageAccordion').then(({ initImageAccordion }) => {
+        // Transform portfolio data to match ImageAccordionData format
+        const accordionData = portfolioProjects
+          .slice(0, 5) // Take first 5 projects as required
+          .map(project => ({
+            image: project.image,
+            title: project.title,
+            description: project.description,
+            link: '/portfolio' // Link to portfolio page
+          }));
+        
+        // Initialize the accordion
+        const cleanup = initImageAccordion('#image-accordion-container', accordionData);
+        
+        // Return cleanup function
+        return cleanup;
+      });
+    }, []);
+
+    const [currentPage, setCurrentPage] = useState<PageID>(initialRoute.page);
    const [isContactOpen, setIsContactOpen] = useState(initialRoute.openContact ?? false);
    const [contactSubject, setContactSubject] = useState<string>('');
    const [isScrolled, setIsScrolled] = useState(false);
@@ -446,9 +469,13 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
             description={heroT('heroSub')}
             schema={organizationSchema}
           />
-          <HeroSection onNavigate={navigateTo} />
-          <SuccessStoriesSection onNavigate={navigateTo} />
-          <ClientTrustBar />
+           <HeroSection onNavigate={navigateTo} />
+           <div className="success-stories-header">
+             <h2 className="success-stories-title">Our Success Stories</h2>
+             <p className="success-stories-subtitle">Delivering excellence across Ethiopia's telecommunications, power, and ICT sectors</p>
+           </div>
+           <div id="image-accordion-container"></div>
+           <ClientTrustBar />
           
           <Section className="bg-brand-primary overflow-hidden border-b border-white/5">
              <div className="mb-8 flex items-center gap-3"><LogoSymbol className="w-6 h-6 opacity-30" /><span className={UI_CLASSES.tag + " text-brand-muted/70 border-l-2 border-brand-accent pl-3"}>{t('common.strategicDeliveryNetwork')}</span></div>

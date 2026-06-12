@@ -39,6 +39,21 @@ body {
   100% { transform: translateX(-50%); }
 }
 
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.animate-glow {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
 .animate-marquee {
   animation: marquee 40s linear infinite;
   will-change: transform;
@@ -66,4 +81,289 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Success Stories Horizontal Accordion Styles */
+.success-stories-accordion {
+  height: 500px; /* Fixed height for the accordion */
+  margin: 2rem 0;
+}
+
+.success-stories-panel {
+  min-width: 0; /* Required for flex shrinking to work properly */
+  transition: flex-grow 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.panel-image-wrapper {
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-image-wrapper img {
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Premium cubic-bezier */
+}
+
+.success-stories-panel:hover .panel-image-wrapper img {
+  transform: scale(1.05); /* Slight zoom on hover */
+}
+
+.panel-title {
+  transition: opacity 0.5s ease;
+}
+
+.expanded-content {
+  transition: opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s; /* Delayed reveal */
+  pointer-events: none; /* Prevent interaction during transition */
+}
+
+.success-stories-panel.expanded .panel-title {
+  opacity: 0; /* Hide title when expanded */
+}
+
+.success-stories-panel.expanded .expanded-content {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all; /* Enable interaction after transition */
+}
+
+/* Mobile Responsiveness - Vertical Accordion */
+@media (max-width: 768px) {
+  .success-stories-accordion {
+    height: auto;
+    overflow: visible;
+  }
+  
+  .success-stories-panel {
+    flex-direction: column !important;
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+    height: auto !important;
+    min-height: 80px; /* Minimum height for collapsed state */
+    max-height: 80px; /* Maximum height for collapsed state */
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+  }
+  
+  .success-stories-panel:last-child {
+    margin-bottom: 0;
+  }
+  
+  .panel-image-wrapper {
+    height: 200px;
+    flex-shrink: 0;
+  }
+  
+  .panel-title {
+    opacity: 1 !important; /* Always show title */
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .expanded-content {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+    pointer-events: none;
+    margin-top: 1rem;
+  }
+  
+  .success-stories-panel.expanded {
+    max-height: 500px; /* Allow expansion to show content */
+  }
+  
+  .success-stories-panel.expanded .expanded-content {
+    max-height: 500px;
+    opacity: 1;
+    pointer-events: all;
+  }
+  
+  /* Keep the hover effect on mobile too */
+  .success-stories-panel:hover .panel-image-wrapper img {
+    transform: scale(1.05);
+  }
+}
+
+/* Success Stories Header Styles */
+.success-stories-header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.success-stories-title {
+  font-size: 2.25rem; /* 36px */
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-brand-foreground);
+  letter-spacing: -0.5px;
+}
+
+.success-stories-subtitle {
+  font-size: 1.125rem; /* 18px */
+  color: var(--color-brand-muted);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* Image Accordion Styles */
+.image-accordion-container {
+  display: flex;
+  gap: 1.5rem; /* Even white space between panels */
+  overflow: hidden;
+  height: 500px; /* Fixed height for the accordion */
+  margin: 3rem 0 2rem; /* Increased top margin for better separation from hero */
+}
+
+.image-accordion-panel {
+  flex: 1 1 auto; /* Equal width by default */
+  overflow: hidden;
+  position: relative;
+  transition: flex 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Premium easing */
+  cursor: pointer;
+  border-radius: 12px; /* Added border radius for modern look */
+}
+
+/* Focus styles for accessibility */
+.image-accordion-panel:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+}
+
+.image-accordion-panel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Premium easing */
+}
+
+.image-accordion-panel:hover {
+  /* Add subtle elevation on hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.image-accordion-panel:hover img {
+  transform: scale(1.05); /* Slight zoom on hover */
+}
+
+/* Desktop Styles */
+@media (min-width: 769px) {
+  .image-accordion-panel.expanded {
+    flex: 3 1 auto; /* Expanded panel takes 3x space */
+  }
+  
+.panel-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); /* More transparent as requested */
+  backdrop-filter: blur(8px); /* Added frosted glass effect */
+  color: white;
+  padding: 1rem; /* Further reduced to decrease vertical space */
+  transform: translateY(100%); /* Start completely below panel */
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Premium easing */
+  display: flex;
+  flex-direction: column;
+}
+  
+.image-accordion-panel.expanded .panel-overlay {
+  transform: translateY(0); /* Slide up to sit on panel bottom */
+}
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .image-accordion-container {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .image-accordion-panel {
+    height: 90px; /* Collapsed height */
+    margin-bottom: 1rem;
+    transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Premium easing */
+  }
+  
+  .image-accordion-panel:last-child {
+    margin-bottom: 0;
+  }
+  
+  .image-accordion-panel.expanded {
+    height: 500px; /* Expanded height */
+  }
+  
+.panel-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); /* More transparent as requested */
+  backdrop-filter: blur(8px); /* Added frosted glass effect */
+  color: white;
+  padding: 1rem; /* Further reduced to decrease vertical space */
+  transform: translateY(100%); /* Start fully below visible area */
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Premium easing */
+  display: flex;
+  flex-direction: column;
+}
+  
+  .image-accordion-panel.expanded .panel-overlay {
+    transform: translateY(0); /* Slide up to visible position */
+  }
+}
+
+.panel-magnifier {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.panel-magnifier:hover {
+  background: rgba(0,0,0,0.7);
+  transform: scale(1.1);
+}
+
+.panel-overlay h3 {
+  margin: 0 0 0.5rem 0; /* Reduced from 0.8rem */
+  font-size: 1.375rem; /* 22px */
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.panel-overlay p {
+  margin: 0 0 0.75rem 0; /* Reduced from 1.2rem */
+  font-size: 1rem; /* 16px */
+  line-height: 1.7;
+}
+
+.panel-cta {
+  display: inline-block;
+  padding: 0.5rem 1rem; /* Slightly reduced padding */
+  background: var(--color-brand-accent);
+  color: var(--color-brand-primary);
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 6px; /* Slightly increased border radius */
+  transition: all 0.3s ease; /* Expanded transition for better feel */
+  border: 1px solid transparent; /* For better hover effect */
+}
+
+.panel-cta:hover {
+  background: #0099cc; /* Darker shade on hover */
+  transform: translateY(-2px); /* Subtle lift on hover */
+  box-shadow: 0 4px 8px rgba(0, 194, 255, 0.3);
+}
+
+.panel-cta:active {
+  transform: translateY(0); /* Pressed state */
 }
