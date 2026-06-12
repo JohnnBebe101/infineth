@@ -5,13 +5,16 @@ interface ImageAccordionData {
   link: string;
 }
 
+import { PageID } from '../types';
+
 /**
  * Initialize an image accordion component
  * @param selector CSS selector for the container element
  * @param data Array of image accordion data objects
+ * @param onNavigate Optional navigation callback for client-side routing
  * @returns Cleanup function to remove event listeners
  */
-export function initImageAccordion(selector: string, data: ImageAccordionData[]): () => void {
+export function initImageAccordion(selector: string, data: ImageAccordionData[], onNavigate?: (page: PageID, hash?: string, routePath?: string) => void): () => void {
   const container = document.querySelector(selector);
   if (!container) {
     console.error('ImageAccordion: Container not found for selector:', selector);
@@ -61,10 +64,16 @@ export function initImageAccordion(selector: string, data: ImageAccordionData[])
     overlay.appendChild(description);
 
     // CTA button
-    const ctaButton = document.createElement('a');
-    ctaButton.href = item.link;
+    const ctaButton = document.createElement('button');
     ctaButton.className = 'panel-cta';
     ctaButton.textContent = 'Read More';
+    ctaButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (onNavigate) {
+        // Navigate to portfolio page
+        onNavigate('portfolio');
+      }
+    });
     overlay.appendChild(ctaButton);
 
     // Append elements to panel

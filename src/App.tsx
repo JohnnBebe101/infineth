@@ -94,11 +94,11 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
             image: project.image,
             title: project.title,
             description: project.description,
-            link: '/portfolio' // Link to portfolio page
+            link: '/portfolio' // Link to portfolio page (kept for compatibility)
           }));
         
-        // Initialize the accordion
-        const cleanup = initImageAccordion('#image-accordion-container', accordionData);
+        // Initialize the accordion with navigation callback
+        const cleanup = initImageAccordion('#image-accordion-container', accordionData, navigateTo);
         
         // Return cleanup function
         return cleanup;
