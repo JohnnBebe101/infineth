@@ -11,22 +11,22 @@ export interface WidgetProject {
 }
 
 export const widgetProjects: WidgetProject[] = [
-  {
-    id: 1,
-    title: "Optical Transmission Network",
-    category: "Telecom",
-    description: "66 stations across 3 routes",
-    client: "Huawei / AAICTDA",
-    image: "/assets/images/portfolio/rural-electrification.webp",
-  },
-  {
-    id: 2,
-    title: "Ethio Telecom Tower Rollout",
-    category: "Telecom",
-    description: "Nationwide deployment & commissioning",
-    client: "Ethio Telecom / Nokia",
-    image: "/assets/images/portfolio/400-kv-tower.webp",
-  },
+    {
+      id: 1,
+      title: "Optical Transmission Network",
+      category: "Telecom",
+      description: "66 stations across 3 routes",
+      client: "Huawei / AAICTDA",
+      image: "/assets/images/portfolio/optical-transmission-network.webp",
+    },
+    {
+      id: 2,
+      title: "Ethio Telecom Tower Rollout",
+      category: "Telecom",
+      description: "Nationwide deployment & commissioning",
+      client: "Ethio Telecom / Nokia",
+      image: "/assets/images/portfolio/ethio-telecom-tower-rollout.webp",
+    },
   {
     id: 3,
     title: "400KV Transmission Towers",

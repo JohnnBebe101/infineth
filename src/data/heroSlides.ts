@@ -85,10 +85,10 @@ export const heroSlides: HeroSlide[] = [
     { label: "MSP", action: "link", target: "/msp" },
     { label: "Training", action: "link", target: "/academy" },
   ],
-  secondaryButtons: [
-    { label: "ISO Certified", action: "link", target: "/iso" },
-    { label: "20+ Years Experience", action: "link", target: "/about" },
-  ],
+   secondaryButtons: [
+     { label: "ISO Certified", action: "link", target: "#excellence" },
+     { label: "20+ Years Experience", action: "link", target: "/about" },
+   ],
 },
   {
     id: 2,

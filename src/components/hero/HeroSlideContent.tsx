@@ -91,13 +91,15 @@ const HeroSlideContent: React.FC<HeroSlideContentProps> = ({ slide, isActive, on
                      onNavigate(pageId, undefined, btn.target);
                    }
                  }}
-                 className="
-                   px-4 py-2 text-xs font-semibold rounded-lg
-                   border border-brand-accent/20
-                   text-brand-accent/60
-                   hover:text-brand-accent hover:border-brand-accent/10
-                   transition-colors duration-200
-                 "
+                  className="
+                    relative px-4 py-2 text-xs font-semibold rounded-lg
+                    border-2 border-brand-accent/20
+                    text-brand-accent/60
+                    hover:text-brand-accent hover:border-brand-accent/20
+                    transition-all duration-300
+                    after:absolute after:-inset-0 after:rounded-lg after:border after:border-brand-accent/0 after:animate-glow
+                    hover:after:border-brand-accent/20
+                  "
                >
                  {btn.label}
                </a>
