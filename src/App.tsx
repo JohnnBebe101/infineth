@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nextProvider } from 'react-i18next';
@@ -72,47 +72,28 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
       return { page: 'home' as PageID, openContact: true };
     }
     return route;
-  })();
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const subject = params.get('subject');
-    if (subject) {
-      setContactSubject(subject);
-      setIsContactOpen(true);
-    }
-   }, []);
-
-    // Initialize ImageAccordion for success stories
-    useEffect(() => {
-      // Import the initImageAccordion function dynamically to avoid SSR issues
-      import('./components/ImageAccordion').then(({ initImageAccordion }) => {
-        // Transform portfolio data to match ImageAccordionData format
-        const accordionData = portfolioProjects
-          .slice(0, 5) // Take first 5 projects as required
-          .map(project => ({
-            image: project.image,
-            title: project.title,
-            description: project.description,
-            link: '/portfolio' // Link to portfolio page (kept for compatibility)
-          }));
-        
-        // Initialize the accordion with navigation callback
-        const cleanup = initImageAccordion('#image-accordion-container', accordionData, navigateTo);
-        
-        // Return cleanup function
-        return cleanup;
-      });
-    }, []);
+   })();
 
     const [currentPage, setCurrentPage] = useState<PageID>(initialRoute.page);
-   const [isContactOpen, setIsContactOpen] = useState(initialRoute.openContact ?? false);
-   const [contactSubject, setContactSubject] = useState<string>('');
-   const [isScrolled, setIsScrolled] = useState(false);
-   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-   const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [isContactOpen, setIsContactOpen] = useState(initialRoute.openContact ?? false);
+    const [contactSubject, setContactSubject] = useState<string>('');
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [activeMenu, setActiveMenu] = useState<string | null>(null);
+    const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const cleanupRef = useRef<(() => void) | null>(null);
 
-  useEffect(() => {
+   useEffect(() => {
+     const params = new URLSearchParams(window.location.search);
+     const subject = params.get('subject');
+     if (subject) {
+       setContactSubject(subject);
+       setIsContactOpen(true);
+     }
+    }, []);
+
+ 
+
+   useEffect(() => {
     const h = () => setIsScrolled(window.scrollY > 30);
     const handlePopState = () => {
       const route = getRouteFromPath(window.location.pathname);
@@ -162,9 +143,60 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
         }
       }
     }
-  };
+};
+ 
+   // Initialize ImageAccordion for success stories
+   useEffect(() => {
+     // Only concerned with home page state
+     if (currentPage !== 'home') {
+       // Clean up if we were previously on home page
+       if (cleanupRef.current) {
+         cleanupRef.current();
+         cleanupRef.current = null;
+       }
+       return; // Exit early for non-home pages
+     }
 
-  const renderContent = () => {
+     // We're on the home page - initialize ImageAccordion
+     async function initAccordion() {
+       try {
+         // Clean up any existing instance first
+         if (cleanupRef.current) {
+           cleanupRef.current();
+         }
+         
+         // Import initImageAccordion dynamically to avoid SSR issues
+         const { initImageAccordion } = await import('./components/ImageAccordion');
+         
+         // Transform portfolio data to match ImageAccordionData format
+         const accordionData = portfolioProjects
+           .slice(0, 5) // Take first 5 projects as required
+           .map(project => ({
+             image: project.image,
+             title: project.title,
+             description: project.description,
+             link: '/portfolio' // Link to portfolio page (kept for compatibility)
+           }));
+         
+         // Initialize accordion with navigation callback
+         cleanupRef.current = initImageAccordion('#image-accordion-container', accordionData, navigateTo);
+       } catch (error) {
+         console.error('Failed to initialize ImageAccordion:', error);
+       }
+     }
+     
+     initAccordion();
+     
+     // Cleanup for when leaving home page or component unmounts
+     return () => {
+       if (cleanupRef.current) {
+         cleanupRef.current();
+         cleanupRef.current = null;
+       }
+     };
+   }, [currentPage]); // Critical: Re-run when page changes
+
+   const renderContent = () => {
     const organizationSchema = {
       "@context": "https://schema.org",
       "@type": "Organization",
@@ -544,7 +576,8 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
                            label: 'Rated',
                            iconColor: 'text-blue-600'
                          }
-                       };
+   };
+
                        const variant = statusVariants[cert.status as keyof typeof statusVariants] || statusVariants.certified;
                        
                        return (
