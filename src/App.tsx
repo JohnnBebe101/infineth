@@ -302,30 +302,30 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
           />
         </>
       );
-      case 'power_transmission_distribution': return (
-        <>
-          <MetaTags title="Transmission, Distribution & Substation" description="HV/MV transmission line construction, substations and distribution network rollout." />
-          <ServicePages.PowerTransmissionDistribution onBack={() => navigateTo('home')} heroImage="/assets/images/portfolio/400-kv-tower.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/transmission-distribution" onNavigate={(path) => navigateTo('home', undefined, path)} />
-        </>
-      );
-      case 'power_minigrid_systems': return (
-        <>
-          <MetaTags title="Minigrid Systems" description="Minigrid design, hybrid power systems, grid integration and community electrification." />
-          <ServicePages.PowerMinigridSystems onBack={() => navigateTo('home')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/minigrid-systems" onNavigate={(path) => navigateTo('home', undefined, path)} />
-        </>
-      );
-      case 'power_backup_power': return (
-        <>
-          <MetaTags title="Backup Power Systems (DG, Solar & Hybrid)" description="Diesel generator, solar PV, battery storage and UPS systems for backup power." />
-          <ServicePages.PowerBackupPower onBack={() => navigateTo('home')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/backup-power" onNavigate={(path) => navigateTo('home', undefined, path)} />
-        </>
-      );
-      case 'power_building_electromechanical': return (
-        <>
-          <MetaTags title="Building Electromechanical Works" description="Industrial electrical installations, panel boards, earthing and lightning protection systems." />
-          <ServicePages.PowerBuildingElectromechanical onBack={() => navigateTo('home')} heroImage="/assets/images/hero/hero-power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/building-electromechanical" onNavigate={(path) => navigateTo('home', undefined, path)} />
-        </>
-      );
+case 'power_transmission_distribution': return (
+  <>
+    <MetaTags title="Transmission, Distribution & Substation" description="HV/MV transmission line construction, substations and distribution network rollout." />
+    <ServicePages.PowerTransmissionDistribution onBack={() => navigateTo('power')} heroImage="/assets/images/portfolio/400-kv-tower.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/transmission-distribution" onNavigate={(path) => navigateTo('power', undefined, path)} />
+  </>
+);
+case 'power_minigrid_systems': return (
+  <>
+    <MetaTags title="Minigrid Systems" description="Minigrid design, hybrid power systems, grid integration and community electrification." />
+    <ServicePages.PowerMinigridSystems onBack={() => navigateTo('power')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/minigrid-systems" onNavigate={(path) => navigateTo('power', undefined, path)} />
+  </>
+);
+case 'power_backup_power': return (
+  <>
+    <MetaTags title="Backup Power Systems (DG, Solar & Hybrid)" description="Diesel generator, solar PV, battery storage and UPS systems for backup power." />
+    <ServicePages.PowerBackupPower onBack={() => navigateTo('power')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/backup-power" onNavigate={(path) => navigateTo('power', undefined, path)} />
+  </>
+);
+case 'power_building_electromechanical': return (
+  <>
+    <MetaTags title="Building Electromechanical Works" description="Industrial electrical installations, panel boards, earthing and lightning protection systems." />
+    <ServicePages.PowerBuildingElectromechanical onBack={() => navigateTo('power')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/building-electromechanical" onNavigate={(path) => navigateTo('power', undefined, path)} />
+  </>
+);
       case 'ict_datacenter_data_center_design': return (
         <>
           <MetaTags title="Data Center Design & Build" description="Data center assessment, rack and cabling infrastructure, power and cooling systems." />
