@@ -694,7 +694,7 @@ export const ServicePages = {
         </SectionBlock>
         <ReferenceBlock items={[
           '30m² data center build at Entoto TVET campus including LAN deployment across 12 buildings, 500+ nodes (Huawei / AAICTDA)',
-          'MoFED regional data centers'
+          'Raxio Data Centers'
         ]} />
         <CalloutBox>
           ISO 27001:2022 — Information Security Management
@@ -714,7 +714,7 @@ export const ServicePages = {
           LAN/WAN design and deployment, structured cabling, network switches and routing, NAS/SAN storage, backup and disaster recovery systems.
         </SectionBlock>
         <ReferenceBlock items={[
-          'LAN deployment across 12 buildings, 500+ nodes — Entoto TVET',
+          'Clinton Foundation',
           'OXFAM-America ICT support',
           'Clinton Foundation LAN work'
         ]} />
