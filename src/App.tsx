@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nextProvider } from 'react-i18next';
@@ -32,7 +32,8 @@ import { ServiceCard } from './components/ServiceCard';
 import { ContactModal } from './components/ContactModal';
 import { CountUp } from './components/CountUp';
 import { Section } from './components/Section';
-import { SuccessStoriesSection } from './components/SuccessStoriesSection';
+// Import portfolio data for the ImageAccordion
+import { portfolioProjects } from './data/portfolioData';
 import { CorporatePages } from './components/CorporatePages';
 import { 
   InfrastructurePages, 
@@ -71,26 +72,28 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
       return { page: 'home' as PageID, openContact: true };
     }
     return route;
-  })();
+   })();
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const subject = params.get('subject');
-    if (subject) {
-      setContactSubject(subject);
-      setIsContactOpen(true);
-    }
-  }, []);
+    const [currentPage, setCurrentPage] = useState<PageID>(initialRoute.page);
+    const [isContactOpen, setIsContactOpen] = useState(initialRoute.openContact ?? false);
+    const [contactSubject, setContactSubject] = useState<string>('');
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [activeMenu, setActiveMenu] = useState<string | null>(null);
+    const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const cleanupRef = useRef<(() => void) | null>(null);
 
-  const [currentPage, setCurrentPage] = useState<PageID>(initialRoute.page);
-  const [isContactOpen, setIsContactOpen] = useState(initialRoute.openContact ?? false);
-  const [contactSubject, setContactSubject] = useState<string>('');
-  const [activeISO, setActiveISO] = useState("9001");
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+   useEffect(() => {
+     const params = new URLSearchParams(window.location.search);
+     const subject = params.get('subject');
+     if (subject) {
+       setContactSubject(subject);
+       setIsContactOpen(true);
+     }
+    }, []);
 
-  useEffect(() => {
+ 
+
+   useEffect(() => {
     const h = () => setIsScrolled(window.scrollY > 30);
     const handlePopState = () => {
       const route = getRouteFromPath(window.location.pathname);
@@ -140,9 +143,60 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
         }
       }
     }
-  };
+};
+ 
+   // Initialize ImageAccordion for success stories
+   useEffect(() => {
+     // Only concerned with home page state
+     if (currentPage !== 'home') {
+       // Clean up if we were previously on home page
+       if (cleanupRef.current) {
+         cleanupRef.current();
+         cleanupRef.current = null;
+       }
+       return; // Exit early for non-home pages
+     }
 
-  const renderContent = () => {
+     // We're on the home page - initialize ImageAccordion
+     async function initAccordion() {
+       try {
+         // Clean up any existing instance first
+         if (cleanupRef.current) {
+           cleanupRef.current();
+         }
+         
+         // Import initImageAccordion dynamically to avoid SSR issues
+         const { initImageAccordion } = await import('./components/ImageAccordion');
+         
+         // Transform portfolio data to match ImageAccordionData format
+         const accordionData = portfolioProjects
+           .slice(0, 5) // Take first 5 projects as required
+           .map(project => ({
+             image: project.image,
+             title: project.title,
+             description: project.description,
+             link: '/portfolio' // Link to portfolio page (kept for compatibility)
+           }));
+         
+         // Initialize accordion with navigation callback
+         cleanupRef.current = initImageAccordion('#image-accordion-container', accordionData, navigateTo);
+       } catch (error) {
+         console.error('Failed to initialize ImageAccordion:', error);
+       }
+     }
+     
+     initAccordion();
+     
+     // Cleanup for when leaving home page or component unmounts
+     return () => {
+       if (cleanupRef.current) {
+         cleanupRef.current();
+         cleanupRef.current = null;
+       }
+     };
+   }, [currentPage]); // Critical: Re-run when page changes
+
+   const renderContent = () => {
     const organizationSchema = {
       "@context": "https://schema.org",
       "@type": "Organization",
@@ -248,30 +302,30 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
           />
         </>
       );
-      case 'power_transmission_distribution': return (
-        <>
-          <MetaTags title="Transmission, Distribution & Substation" description="HV/MV transmission line construction, substations and distribution network rollout." />
-          <ServicePages.PowerTransmissionDistribution onBack={() => navigateTo('home')} heroImage="/assets/images/portfolio/400-kv-tower.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/transmission-distribution" onNavigate={(path) => navigateTo('home', undefined, path)} />
-        </>
-      );
-      case 'power_minigrid_systems': return (
-        <>
-          <MetaTags title="Minigrid Systems" description="Minigrid design, hybrid power systems, grid integration and community electrification." />
-          <ServicePages.PowerMinigridSystems onBack={() => navigateTo('home')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/minigrid-systems" onNavigate={(path) => navigateTo('home', undefined, path)} />
-        </>
-      );
-      case 'power_backup_power': return (
-        <>
-          <MetaTags title="Backup Power Systems (DG, Solar & Hybrid)" description="Diesel generator, solar PV, battery storage and UPS systems for backup power." />
-          <ServicePages.PowerBackupPower onBack={() => navigateTo('home')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/backup-power" onNavigate={(path) => navigateTo('home', undefined, path)} />
-        </>
-      );
-      case 'power_building_electromechanical': return (
-        <>
-          <MetaTags title="Building Electromechanical Works" description="Industrial electrical installations, panel boards, earthing and lightning protection systems." />
-          <ServicePages.PowerBuildingElectromechanical onBack={() => navigateTo('home')} heroImage="/assets/images/hero/hero-power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/building-electromechanical" onNavigate={(path) => navigateTo('home', undefined, path)} />
-        </>
-      );
+case 'power_transmission_distribution': return (
+  <>
+    <MetaTags title="Transmission, Distribution & Substation" description="HV/MV transmission line construction, substations and distribution network rollout." />
+    <ServicePages.PowerTransmissionDistribution onBack={() => navigateTo('power')} heroImage="/assets/images/portfolio/400-kv-tower.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/transmission-distribution" onNavigate={(path) => navigateTo('power', undefined, path)} />
+  </>
+);
+case 'power_minigrid_systems': return (
+  <>
+    <MetaTags title="Minigrid Systems" description="Minigrid design, hybrid power systems, grid integration and community electrification." />
+    <ServicePages.PowerMinigridSystems onBack={() => navigateTo('power')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/minigrid-systems" onNavigate={(path) => navigateTo('power', undefined, path)} />
+  </>
+);
+case 'power_backup_power': return (
+  <>
+    <MetaTags title="Backup Power Systems (DG, Solar & Hybrid)" description="Diesel generator, solar PV, battery storage and UPS systems for backup power." />
+    <ServicePages.PowerBackupPower onBack={() => navigateTo('power')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/backup-power" onNavigate={(path) => navigateTo('power', undefined, path)} />
+  </>
+);
+case 'power_building_electromechanical': return (
+  <>
+    <MetaTags title="Building Electromechanical Works" description="Industrial electrical installations, panel boards, earthing and lightning protection systems." />
+    <ServicePages.PowerBuildingElectromechanical onBack={() => navigateTo('power')} heroImage="/assets/images/hero/power.webp" gradientFallback="from-black/5 to-transparent" currentPath="/power/building-electromechanical" onNavigate={(path) => navigateTo('power', undefined, path)} />
+  </>
+);
       case 'ict_datacenter_data_center_design': return (
         <>
           <MetaTags title="Data Center Design & Build" description="Data center assessment, rack and cabling infrastructure, power and cooling systems." />
@@ -344,13 +398,25 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
           <LegalPage type="privacy" onNavigate={navigateTo} />
         </>
       );
-      case 'terms_of_service': return (
-        <>
-          <MetaTags title="Terms of Service" description="InfinEth Solutions Terms of Service" />
-          <LegalPage type="terms" onNavigate={navigateTo} />
-        </>
-      );
-      case 'ict_datacenter': return (
+       case 'terms_of_service': return (
+         <>
+           <MetaTags title="Terms of Service" description="InfinEth Solutions Terms of Service" />
+           <LegalPage type="terms" onNavigate={navigateTo} />
+         </>
+       );
+       case 'awards': return (
+         <>
+           <MetaTags title={t('excellence.awards.title')} description={t('excellence.awards.description')} />
+           <ExcellencePages.Awards onBack={() => navigateTo('home')} heroImage="/assets/images/hero/hero-overview.webp" gradientFallback="from-black/5 to-transparent" />
+         </>
+       );
+       case 'iso': return (
+         <>
+           <MetaTags title={t('excellence.iso.title')} description={t('excellence.iso.description')} />
+           <ExcellencePages.ISO onBack={() => navigateTo('home')} heroImage="/assets/images/hero/hero-overview.webp" gradientFallback="from-black/5 to-transparent" />
+         </>
+       );
+       case 'ict_datacenter': return (
         <>
           <MetaTags title={t('common.services.ict.title')} description={t('common.services.ict.description')} />
           <ICTPage onNavigate={navigateTo} />
@@ -435,9 +501,13 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
             description={heroT('heroSub')}
             schema={organizationSchema}
           />
-          <HeroSection onNavigate={navigateTo} />
-          <SuccessStoriesSection onNavigate={navigateTo} />
-          <ClientTrustBar />
+           <HeroSection onNavigate={navigateTo} />
+           <div className="success-stories-header">
+             <h2 className="success-stories-title">Our Success Stories</h2>
+             <p className="success-stories-subtitle">Delivering excellence across Ethiopia's telecommunications, power, and ICT sectors</p>
+           </div>
+           <div id="image-accordion-container"></div>
+           <ClientTrustBar />
           
           <Section className="bg-brand-primary overflow-hidden border-b border-white/5">
              <div className="mb-8 flex items-center gap-3"><LogoSymbol className="w-6 h-6 opacity-30" /><span className={UI_CLASSES.tag + " text-brand-muted/70 border-l-2 border-brand-accent pl-3"}>{t('common.strategicDeliveryNetwork')}</span></div>
@@ -482,14 +552,54 @@ const App: React.FC<AppProps> = ({ initialPage = 'home', i18n: i18nProp }) => {
             <div className="w-16 h-px bg-brand-accent/30 mx-auto" />
 
 <Section id="excellence" className="bg-brand-primary overflow-hidden py-8">
-              <div className="max-w-2xl mb-6"><span className={`text-brand-accent ${UI_CLASSES.tag} mb-2 border-l-2 border-brand-accent pl-3`}>Our Certifications</span><h2 className={`${UI_CLASSES.sectionTitle} text-brand-foreground text-lg`}>{t('common.integrityFramework')}</h2></div>
-              <div className="bg-brand-surface rounded-xl overflow-hidden grid lg:grid-cols-3 shadow-lg">
-                <div className="lg:col-span-1 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-brand-surface to-brand-primary">
-                  <AnimatePresence mode="wait"><motion.div key={activeISO} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-28 h-28 bg-white rounded-full p-4 shadow-lg flex flex-col items-center justify-center"><span className="text-[6px] font-bold uppercase tracking-widest text-brand-primary/40 mb-0.5">Certified</span><span className="text-xs font-semibold text-brand-primary tracking-tight">{ISO_DATA.find(i => i.id === activeISO)?.standard || `ISO ${activeISO}`}</span></motion.div></AnimatePresence>
-                </div>
-                <div className="lg:col-span-2 p-3 md:p-4 bg-white/5 divide-y divide-white/5">{ISO_DATA.map((iso) => (<div key={iso.id} className="py-2 cursor-pointer group relative" onClick={() => setActiveISO(iso.id)}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className={`w-8 h-8 rounded-md flex items-center justify-center ${activeISO === iso.id ? (iso.id === 'ecovadis' ? 'bg-violet-500 text-white' : 'bg-brand-accent text-brand-primary') : 'bg-white/5 text-white/10'}`}><CheckCircle2 size={14} /></div><h3 className={`text-xs font-semibold tracking-tight ${activeISO === iso.id ? 'text-brand-foreground' : 'text-brand-foreground/30'}`}>{iso.standard}</h3>{(iso.status === 'certified' || iso.status === 'rated') && <span className={`absolute right-8 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${iso.status === 'certified' ? 'bg-green-500/20 border border-green-500/40 text-green-400' : 'bg-violet-500/20 border border-violet-500/40 text-violet-400'}`}>{iso.status === 'rated' ? 'Rated' : 'Certified'}</span>}</div><ChevronDown size={16} className={`transition-all ${activeISO === iso.id ? 'rotate-180 text-brand-accent' : 'text-white/5'}`} /></div>{activeISO === iso.id && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="text-xs text-gray-400 leading-relaxed mt-2 pl-11">{iso.description}</motion.p>}</div>))}</div>
-              </div>
-            </Section>
+               <div className="max-w-2xl mb-6"><span className={`text-brand-accent ${UI_CLASSES.tag} mb-2 border-l-2 border-brand-accent pl-3`}>Our Certifications</span><h2 className={`${UI_CLASSES.sectionTitle} text-brand-foreground text-lg`}>{t('common.integrityFramework')}</h2></div>
+               <div className="bg-brand-surface rounded-xl overflow-hidden grid lg:grid-cols-3 shadow-lg">
+                 <div className="lg:col-span-12 px-6 py-8">
+                   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+                     {ISO_DATA.map((cert) => {
+                       const statusVariants = {
+                         certified: { 
+                           bg: 'bg-green-500/20', 
+                           border: 'border-green-500', 
+                           label: 'Certified',
+                           iconColor: 'text-green-600'
+                         },
+                         wip: { 
+                           bg: 'bg-amber-500/20', 
+                           border: 'border-amber-500', 
+                           label: 'In Progress',
+                           iconColor: 'text-amber-600'
+                         },
+                         rated: { 
+                           bg: 'bg-blue-500/20', 
+                           border: 'border-blue-500', 
+                           label: 'Rated',
+                           iconColor: 'text-blue-600'
+                         }
+   };
+
+                       const variant = statusVariants[cert.status as keyof typeof statusVariants] || statusVariants.certified;
+                       
+                       return (
+                         <div key={cert.id} className={`p-4 border rounded-lg ${variant.border}/20 hover:${variant.border}/40 transition-all duration-300`}>
+                           <div className="flex items-start space-x-3">
+                             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-brand-surface/50">
+                               <CheckCircle2 className={`w-5 h-5 ${variant.iconColor}`} />
+                             </div>
+                             <div className="space-y-1">
+                               <h3 className="font-semibold text-brand-foreground">{cert.standard}</h3>
+                               <p className="text-sm text-brand-muted">{cert.title}</p>
+                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${variant.bg}">${variant.label}</span>
+                             </div>
+                           </div>
+                           <p className="mt-2 text-xs text-brand-muted">{cert.description}</p>
+                         </div>
+                       );
+                     })}
+                   </div>
+                 </div>
+               </div>
+               </Section>
 
             <div className="w-16 h-px bg-brand-accent/30 mx-auto" />
 

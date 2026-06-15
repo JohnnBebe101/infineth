@@ -42,7 +42,7 @@ export const powerProjects = [
     stat: "Foundation and erection of high-voltage towers",
     client: "KEC International",
     category: "Transmission",
-    image: "/assets/images/portfolio/400-kv-tower.webp",
+    image: "/assets/images/portfolio/new-portfolio-images/400-kv-transmission-tower-2.webp",
   },
   {
     id: 2,
@@ -50,7 +50,7 @@ export const powerProjects = [
     stat: "67 towns across 3 projects (28, 10 & 29 towns)",
     client: "EEPCO",
     category: "Distribution",
-    image: "/assets/images/portfolio/rural-electrification.webp",
+    image: "/assets/images/portfolio/new-portfolio-images/distribution-rural-electrifications.webp",
   },
   {
     id: 3,
@@ -58,7 +58,7 @@ export const powerProjects = [
     stat: "Multi-site power systems for telecom infrastructure",
     client: "ESCO",
     category: "Backup Power",
-    image: "/assets/images/portfolio/safaricom-rollout.webp",
+    image: "/assets/images/portfolio/new-portfolio-images/energy-vision-esco-2.webp",
   },
 ];
 

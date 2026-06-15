@@ -10,6 +10,6 @@
   "compaction": {
     "auto": true,
     "prune": false,
-    "reserved": 30000
+    "reserved": 8000
   }
 }

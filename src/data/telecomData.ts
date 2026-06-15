@@ -36,14 +36,14 @@ export const telecomServices: { id: number; title: string; description: string; 
 ];
 
 export const telecomProjects = [
-  {
-    id: 1,
-    title: "Optical Transmission Network",
-    stat: "66 stations across 3 routes",
-    client: "Huawei / AAICTDA",
-    category: "Fiber Optics",
-    image: "/assets/images/portfolio/optical-tansmission-network.webp",
-  },
+    {
+      id: 1,
+      title: "Optical Transmission Network",
+      stat: "66 stations across 3 routes",
+      client: "Huawei / AAICTDA",
+      category: "Fiber Optics",
+      image: "/assets/images/portfolio/optical-transmission-network.webp",
+    },
   {
     id: 2,
     title: "Ethio Telecom Tower Rollout",

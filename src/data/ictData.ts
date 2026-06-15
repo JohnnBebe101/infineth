@@ -38,19 +38,19 @@ export const ictServices: { id: number; title: string; description: string; icon
 export const ictProjects = [
   {
     id: 1,
-    title: "MoFED Regional Data Centers",
+    title: "Raxio Data Centers",
     stat: "Multi-region data center design and build",
     client: "Ministry of Finance & Economic Development",
     category: "Data Center",
-    image: "/assets/images/portfolio/mofed-dc.webp",
+    image: "/assets/images/portfolio/new-portfolio-images/raxio-data-center.webp",
   },
   {
     id: 2,
-    title: "Entoto TVET Campus ICT",
+    title: "Clinton Foundation",
     stat: "500+ nodes, 30m² data center, 12 buildings",
     client: "Huawei / AAICTDA",
     category: "Enterprise Networking",
-    image: "/assets/images/portfolio/entoto-tvet-1.webp",
+    image: "/assets/images/portfolio/clinton-global-initiative.webp",
   },
   {
     id: 3,
@@ -58,7 +58,7 @@ export const ictProjects = [
     stat: "Full ICT infrastructure support",
     client: "OXFAM-America",
     category: "Managed Services",
-    image: "/assets/images/portfolio/ethio-telecom-tower-rollout.webp",
+    image: "/assets/images/portfolio/new-portfolio-images/oxfam-logo.webp",
   },
 ];
 

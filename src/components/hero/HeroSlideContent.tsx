@@ -52,44 +52,60 @@ const HeroSlideContent: React.FC<HeroSlideContentProps> = ({ slide, isActive, on
 
         {/* Primary CTA Group - Five rounded rectangles for major services */}
         {slide.primaryButtons && (
-          <div className={`${entered ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 flex flex-wrap gap-3 justify-center mb-6`}>
-            {slide.primaryButtons.map((btn, idx) => (
-              <a
-                key={idx}
-                href={btn.target}
-                onClick={btn.action === 'link' ? undefined : undefined}
-                className="
-                  flex items-center justify-center px-6 py-3
-                  text-sm font-medium rounded-lg border border-white/5
-                  text-white hover:bg-white/10 transition-colors duration-200
-                  min-w-[120px] text-center
-                "
-              >
-                {btn.label}
-              </a>
-            ))}
-          </div>
-        )}
+           <div className={`${entered ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 flex flex-wrap gap-3 justify-center mb-6`}>
+             {slide.primaryButtons.map((btn, idx) => (
+               <a
+                 key={idx}
+                 href={btn.target}
+                 onClick={(e) => {
+                   e.preventDefault();
+                   if (onNavigate) {
+                     const pageId = btn.target.replace('/', '') as PageID;
+                     onNavigate(pageId, undefined, btn.target);
+                   }
+                 }}
+                 className="
+                   flex items-center justify-center px-6 py-3
+                   text-sm font-medium rounded-lg border border-brand-accent/20
+                   text-brand-accent hover:bg-brand-accent/10 transition-colors duration-200
+                   min-w-[120px] text-center
+                 "
+               >
+                 {btn.label}
+               </a>
+             ))}
+           </div>
+         )}
 
         {/* Secondary Info Buttons - Smaller buttons for ISO and Experience */}
         {slide.secondaryButtons && (
-          <div className={`${entered ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 flex flex-wrap gap-2 justify-center`}>
-            {slide.secondaryButtons.map((btn, idx) => (
-              <a
-                key={idx}
-                href={btn.target}
-                className="
-                  px-4 py-2 text-xs font-semibold rounded-lg
-                  border border-white/4 text-white/60
-                  hover:text-white hover:border-white/10
-                  transition-colors duration-200
-                "
-              >
-                {btn.label}
-              </a>
-            ))}
-          </div>
-        )}
+           <div className={`${entered ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 flex flex-wrap gap-2 justify-center`}>
+             {slide.secondaryButtons.map((btn, idx) => (
+               <a
+                 key={idx}
+                 href={btn.target}
+                 onClick={(e) => {
+                   e.preventDefault();
+                   if (onNavigate) {
+                     const pageId = btn.target.replace('/', '') as PageID;
+                     onNavigate(pageId, undefined, btn.target);
+                   }
+                 }}
+                  className="
+                    relative px-4 py-2 text-xs font-semibold rounded-lg
+                    border-2 border-brand-accent/20
+                    text-brand-accent/60
+                    hover:text-brand-accent hover:border-brand-accent/20
+                    transition-all duration-300
+                    after:absolute after:-inset-0 after:rounded-lg after:border after:border-brand-accent/0 after:animate-glow
+                    hover:after:border-brand-accent/20
+                  "
+               >
+                 {btn.label}
+               </a>
+             ))}
+           </div>
+         )}
       </div>
     );
   }

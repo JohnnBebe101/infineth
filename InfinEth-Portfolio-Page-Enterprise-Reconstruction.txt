@@ -1,0 +1,125 @@
+InfinEth Portfolio Page: Enterprise Filter Grid Specification
+1. Global Architectural Directives
+
+Read this document as the absolute source of truth for the portfolio page reconstruction. Apply these instructions directly within your Cursor IDE using existing Next.js and React project structures. Do not install new dependencies. Pull all written copy, client data, and service categories directly from the InfinEth company profile located in the project folder. Ensure code efficiency to guarantee smooth rendering on standard Core i5 machines with 8 gigabytes of RAM.
+2. Visual Design System
+
+Apply these exact styling rules universally across the page layout.
+Color Variables
+
+    Primary Background: Deep Navy #0A192F. Use for the top hero section.
+
+    Secondary Background: Light Gray #F8F9FA. Use for the main page body behind the grid.
+
+    Accent: Vibrant Teal #00F2FE. Use for active button states and hover effects.
+
+    Text Primary: Off-Black #1E293B. Use for standard body paragraphs.
+
+    Text Secondary: Slate Gray #64748B. Use for metadata and subheadings.
+
+    Card Surface: Pure White #FFFFFF.
+
+Typography
+
+    Heading Font: Bold, sans-serif.
+
+    Body Font: Regular, sans-serif, line-height 1.6.
+
+3. Section-by-Section Visual Blueprint
+A. The Hero Banner Header
+
+This top section introduces the page visually.
+
+    Layout: Full viewport width. Center all text horizontally and vertically.
+
+    Spacing: Add 80 pixels of padding to the top and bottom.
+
+    Background: Deep Navy color fill. No background image to reduce visual clutter.
+
+    Top Eyebrow Text: Render INFINETH SOLUTIONS PORTFOLIO in all caps, using the Vibrant Teal accent color, with 2 pixels of letter spacing.
+
+    Main Headline: Render Proven Infrastructure. Engineering Excellence. in large, bold, white text.
+
+    Context Paragraph: Place a block of white text below the headline. Set the maximum width to 800 pixels to prevent long, unreadable lines. The text reads: A comprehensive record of enterprise deployments across East Africa. We deliver specialized solutions across five critical infrastructure pillars, ensuring technical reliability, operational scale, and compliance with global standards for corporate managers and investment partners.
+
+B. The Sticky Category Navigation Bar
+
+This horizontal bar allows users to filter the visible projects.
+
+    Layout: A single horizontal row of buttons centered on the screen.
+
+    Behavior: Apply CSS position sticky and top 0. The bar locks to the top edge of the browser window when the user scrolls past the hero section.
+
+    Styling: Pure White background with a subtle gray bottom border. Apply a high z-index to stay above the scrolling cards.
+
+    Buttons: Render six individual text buttons: All Projects, Telecommunication, Power, ICT & Datacenter, MSP, Training.
+
+    Button States: Default state shows Slate Gray text. Active state shows Vibrant Teal text with a Vibrant Teal 2-pixel bottom border. Hover state applies a light gray background color behind the text.
+
+C. The Project Card Grid
+
+This section displays the filtered portfolio items.
+
+    Layout: CSS Grid container.
+
+    Breakpoints: Desktop shows 3 columns. Tablet shows 2 columns. Mobile shows 1 column.
+
+    Spacing: Apply exactly 24 pixels of gap space between all cards vertically and horizontally.
+
+    Background: Light Gray color fill behind the entire grid area. Add 60 pixels of padding to the top and bottom of the grid container.
+
+D. The Individual Project Card Details
+
+Each card must look identical in structure to maintain a corporate aesthetic.
+
+    Container: Pure White background, rounded corners (8 pixels), subtle drop shadow (box-shadow: 0 4px 6px rgba(0,0,0,0.1)). Set overflow hidden to clip image corners.
+
+    Top Half Image Segment: Render an image container constrained to a 16:9 aspect ratio. Use object-fit: cover on the image tag to fill the space without distortion.
+
+    Bottom Half Content Segment: Add 24 pixels of padding inside this area.
+
+    Category Tag: Top left of the content area. Small, all-caps text in Vibrant Teal.
+
+    Project Title: Bold, Off-Black text. Two text lines maximum.
+
+    Project Description: Regular weight, Slate Gray text. Limit to exactly three lines using line-clamping CSS properties.
+
+    Footer Divider: A thin, light gray horizontal line separating the description from the client metadata.
+
+    Card Footer: Display Client: [Name] on the left and Location: [City] on the right. Small, Slate Gray text.
+
+4. Component State and Data Logic
+
+    State Management: Use standard React useState to track the currently selected filter category. The default string is All Projects.
+
+    Filtering: Intercept the raw array of portfolio data. If the state equals All Projects, map the entire array to the grid. If the state equals a specific category, run an array filter function to return matching entries before mapping.
+
+    Entrance Animation: Apply a simple CSS transition (opacity and transform) to cards when rendering. Transition opacity from 0 to 1, and translate Y from 10 pixels to 0 pixels. Set the transition duration to 0.4 seconds.
+
+
+
+5. Data Structure Definition
+
+To guarantee seamless integration, structure your local portfolio data array to match this exact schema. Pull the values directly from the InfinEth company profile document.
+
+    id: Unique string identifier.
+
+    title: Project name.
+
+    category: Must exactly match one of the exact strings: "Telecommunication", "Power", "ICT & Datacenter", "MSP", or "Training".
+
+    description: Short paragraph summarizing the deployment.
+
+    client: Name of the enterprise partner.
+
+    location: City or region (e.g., Addis Ababa, Ethiopia).
+
+    imageUrl: Local path to the optimized project image.
+
+6. Performance and Edge Case Management
+
+    Empty States: If a filter category contains zero projects, render a centered text block stating "No projects currently available in this category." Use the Slate Gray text color. Do not leave a blank screen.
+
+    Image Optimization: Ensure all images passed to imageUrl are compressed. Use the Next.js native <Image /> component with loading="lazy" to prevent memory spikes on your Windows PC with 8GB RAM and a Core i5 processor.
+
+    DOM Rendering: Avoid heavy JavaScript libraries for animations. The native CSS transitions outlined in Section 3 will execute smoothly without taxing system resources.

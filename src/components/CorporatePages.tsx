@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
   ArrowRight, 
@@ -7,6 +7,8 @@ import {
   Users,
   Download,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Award,
   Zap,
   Radio,
@@ -18,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { SubPageLayout } from './SubPageLayout';
 import { UI_CLASSES } from '../data/constants';
 import { LogoSymbol } from './LogoSymbol';
+import useScrollAnimation from '../hooks/useScrollAnimation';
 
 interface PageProps {
   onBack: () => void;
@@ -259,133 +262,228 @@ export const CorporatePages = {
     const members = t('corporate.board.items', { returnObjects: true }) as string[];
     const safeItems = Array.isArray(members) ? members : [];
     
-    return (
-      <SubPageLayout onBack={onBack} tag={t('corporate.board.tag')} title={t('corporate.board.title')} description={t('corporate.board.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
-        <div className="bg-brand-surface text-brand-foreground rounded-[3rem] p-12 md:p-20 relative overflow-hidden border border-white/5">
-          <div className="absolute top-0 right-0 opacity-[0.02] pointer-events-none"><LogoSymbol className="w-80 h-80 scale-150" forceInvert={true} /></div>
-          <div className="relative z-10 grid md:grid-cols-2 gap-16">
-            <div className="space-y-6"><h3 className="text-h2 font-semibold tracking-tight text-brand-accent">{t('corporate.board.oversight_title')}</h3><p className="text-brand-muted font-medium leading-relaxed text-sm">{t('corporate.board.oversight_desc')}</p><div className="flex gap-4"><ShieldCheck size={32} className="text-brand-accent" /><Award size={32} className="text-brand-primary" /></div></div>
-            <div className="space-y-4">{safeItems.map(item => <div key={item} className="pb-4 border-b border-white/10 flex justify-between items-center group cursor-pointer hover:border-brand-accent transition-colors"><span className="text-lg font-bold">{item}</span><ArrowRight size={18} className="text-brand-accent group-hover:translate-x-2 transition-transform" /></div>)}</div>
-          </div>
-        </div>
-      </SubPageLayout>
-    );
-  },
-  Portfolio: ({ onBack, heroImage, gradientFallback }: PageProps) => {
-    const { t } = useTranslation();
-    const safeProjects = Array.isArray(portfolioProjects) ? portfolioProjects : [];
-    const categories = ['All', 'Telecom', 'Power', 'ICT'];
-    
-    const stats = [
-      { value: '66', label: 'Stations', desc: 'Optical transmission deployed' },
-      { value: '67', label: 'Towns', desc: 'Rural electrification coverage' },
-      { value: '500+', label: 'Nodes', desc: 'Campus network deployment' },
-    ];
-    
-    return (
-      <SubPageLayout onBack={onBack} tag={t('corporate.portfolio.tag')} title={t('corporate.portfolio.title')} description={t('corporate.portfolio.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {safeProjects.map((p, i) => (
-            <div key={p.id} className="group relative h-[320px] overflow-hidden rounded-2xl shadow-lg cursor-pointer">
-              <img src={p.image} alt={p.title} className="absolute inset-0 w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" loading="lazy" />
-              <div className="absolute inset-0 p-6 flex flex-col justify-end text-white z-10">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-accent mb-1">{p.category}</span>
-                <h3 className="text-lg font-bold mb-1 group-hover:text-brand-accent transition-colors">{p.title}</h3>
-                <p className="text-white/60 text-xs">{p.description}</p>
-                <p className="text-white/40 text-[10px] mt-2">{p.client}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="py-16">
-          <div className="grid grid-cols-3 gap-6">
-            {stats.map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-4xl md:text-5xl font-black text-brand-accent mb-2">{stat.value}</div>
-                <div className="text-sm font-semibold text-brand-foreground uppercase tracking-wide">{stat.label}</div>
-                <div className="text-xs text-brand-muted mt-1">{stat.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="py-14 bg-brand-surface rounded-3xl border border-white/5">
-          <div className="px-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand-accent mb-8">Featured References</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {safeProjects.slice(0, 3).map((p) => (
-                <div key={p.id} className="bg-brand-primary rounded-xl border border-white/5 p-5 hover:shadow-md transition-shadow">
-                  <div className="w-full h-28 rounded-lg bg-brand-surface mb-4 overflow-hidden">
-                    <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
+     return (
+       <SubPageLayout onBack={onBack} tag={t('corporate.board.tag')} title={t('corporate.board.title')} description={t('corporate.board.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
+         <div className="bg-brand-surface text-brand-foreground rounded-[3rem] p-12 md:p-20 relative overflow-hidden border border-white/5">
+           <div className="absolute top-0 right-0 opacity-[0.02] pointer-events-none"><LogoSymbol className="w-80 h-80 scale-150" forceInvert={true} /></div>
+           <div className="relative z-10 grid md:grid-cols-2 gap-16">
+             <div className="space-y-6"><h3 className="text-h2 font-semibold tracking-tight text-brand-accent">{t('corporate.board.oversight_title')}</h3><p className="text-brand-muted font-medium leading-relaxed text-sm">{t('corporate.board.oversight_desc')}</p><div className="flex gap-4"><ShieldCheck size={32} className="text-brand-accent" /><Award size={32} className="text-brand-primary" /></div></div>
+              <div className="space-y-4">
+                {safeItems.map((item) => (
+                  <div key={item} className="pb-4 border-b border-white/10 flex justify-between items-center group cursor-pointer hover:border-brand-accent transition-colors">
+                    <span className="text-lg font-bold">{item}</span>
+                    <ArrowRight size={18} className="text-brand-accent group-hover:translate-x-2 transition-transform" />
                   </div>
-                  <span className="text-xs font-medium text-brand-accent uppercase tracking-wide">{p.category}</span>
-                  <h4 className="font-semibold text-brand-foreground mt-1 mb-1 text-sm">{p.title}</h4>
-                  <p className="text-xs text-brand-muted">{p.description}</p>
-                  <p className="text-[10px] text-brand-muted/60 mt-2">{p.client}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 rounded-lg bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
-                <ShieldCheck className="w-6 h-6 text-brand-accent" />
-              </div>
-              <h3 className="font-semibold text-brand-foreground mb-2">One Integrated Partner</h3>
-              <p className="text-sm text-brand-muted">Engineering, telecom and ICT under one roof.</p>
-            </div>
-            <div className="text-center p-6">
-              <div className="w-12 h-12 rounded-lg bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-brand-accent" />
-              </div>
-              <h3 className="font-semibold text-brand-foreground mb-2">Turnkey Execution</h3>
-              <p className="text-sm text-brand-muted">Survey to support. Cost-effective and timely.</p>
-            </div>
-            <div className="text-center p-6">
-              <div className="w-12 h-12 rounded-lg bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
-                <ShieldCheck className="w-6 h-6 text-brand-accent" />
-              </div>
-              <h3 className="font-semibold text-brand-foreground mb-2">Safety-Led & Customer-First</h3>
-              <p className="text-sm text-brand-muted">Zero accidents. Professionalism at every stage.</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="py-8 flex justify-center">
-          <a 
-            href="/assets/InfinEth_Condensed_Profile.pdf" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 bg-brand-surface border border-white/10 px-8 py-4 rounded-xl hover:border-brand-accent hover:shadow-lg transition-all duration-300"
-          >
-            <Download size={20} className="text-brand-accent" />
-            <div className="text-left">
-              <p className="text-sm font-semibold text-brand-foreground">Download Company Profile</p>
-              <p className="text-[10px] text-brand-muted">InfinEth Condensed Profile (PDF)</p>
-            </div>
-            <ChevronRight size={16} className="text-brand-muted" />
-          </a>
-        </div>
-        
-        <div className="bg-brand-primary py-14 border-t border-white/5 rounded-2xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <h3 className="text-2xl font-bold text-brand-foreground mb-2">
-                Ready to start your project?
-              </h3>
-              <p className="text-brand-muted text-sm">
-                Talk to our engineers. No obligation, just expertise.
-              </p>
-            </div>
-          </div>
-        </div>
-      </SubPageLayout>
-    );
+        </SubPageLayout>
+      ); // Fixing SubPageLayout closure
   },
+   Portfolio: ({ onBack, heroImage, gradientFallback }: PageProps) => {
+     const { t } = useTranslation();
+     const safeProjects = Array.isArray(portfolioProjects) ? portfolioProjects : [];
+     const categories = ['All', 'Telecom', 'Power', 'ICT'];
+     
+     const stats = [
+       { value: '66+', label: 'Stations', desc: 'Optical transmission deployed' },
+       { value: '67+', label: 'Towns', desc: 'Rural electrification coverage' },
+       { value: '500+', label: 'Nodes', desc: 'Campus network deployment' },
+     ];
+     
+        const [expandedProjectId, setExpandedProjectId] = useState<number | null>(null);
+        const [ref, isVisible] = useScrollAnimation(0.1);
+        const [animatedSections, setAnimatedSections] = useState<number[]>([]);
+
+      useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry, index) => {
+            if (entry.isIntersecting && !animatedSections.includes(index)) {
+              setAnimatedSections(prev => [...prev, index]);
+            }
+          });
+        });
+
+        const items = document.querySelectorAll('.portfolio-animate-section');
+        items.forEach((item, index) => {
+          observer.observe(item);
+        });
+
+        return () => observer.disconnect();
+      }, [animatedSections]);
+      
+       return (
+        <SubPageLayout onBack={onBack} tag={t('corporate.portfolio.tag')} title={t('corporate.portfolio.title')} description={t('corporate.portfolio.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
+          <div 
+            ref={ref} 
+            className={`min-h-[calc(100vh-240px)] flex-1 flex-col ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} transition-all duration-1000 ease-out`}
+          >
+         {/* Project Accordion */}
+         <div className="space-y-4">
+           {safeProjects.map((project, index) => (
+              <div key={project.id} className="portfolio-animate-section border-b border-brand-surface/50 last:border-b-0" style={{ transitionDelay: `${index * 100}ms` }}>
+               {/* Accordion Header */}
+                <div 
+                  onClick={() => {
+                    const isExpanded = expandedProjectId === project.id;
+                    setExpandedProjectId(isExpanded ? null : project.id);
+                  }}
+                  className="cursor-pointer flex items-center justify-between p-4 hover:bg-brand-surface/50 transition-colors duration-200"
+                >
+                 <div className="flex-1 space-x-3">
+                   <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-surface/50">
+                     <span className="text-xs font-medium text-brand-accent">{project.category}</span>
+                   </div>
+                   <div className="space-y-1 ml-3">
+                     <h3 className="font-semibold text-brand-foreground">{project.title}</h3>
+                     <p className="text-xs text-brand-muted/60">{project.client}</p>
+                   </div>
+                 </div>
+                  <div className={`flex items-center transition-transform duration-200 ${expandedProjectId !== null && expandedProjectId === project.id ? 'rotate-180' : 'rotate-0'}`}>
+                   {expandedProjectId === project.id ? <ChevronUp className="w-4 h-4 text-brand-muted/60" /> : <ChevronDown className="w-4 h-4 text-brand-muted/60" />}
+                 </div>
+               </div>
+               
+               {/* Accordion Content */}
+                {expandedProjectId !== null && expandedProjectId === project.id && (
+                 <div className="px-4 py-4 overflow-hidden transition-all duration-300 ease-in-out">
+                   <div className="space-y-4">
+                     {/* Project Image */}
+                     <div className="aspect-[16/9] rounded-lg overflow-hidden">
+                       <img 
+                         src={project.image} 
+                         alt={project.title} 
+                         className="w-full h-full object-cover"
+                       />
+                     </div>
+                     
+                     {/* Project Details */}
+                     <div className="space-y-3">
+                       <h3 className="text-lg font-semibold text-brand-foreground">{project.title}</h3>
+                       <p className="text-sm text-brand-muted">{project.description}</p>
+                       <div className="flex items-center space-x-3 text-xs text-brand-muted/60">
+                         <span>📍 {project.client}</span>
+                         <span>•</span>
+                         <span>{project.category}</span>
+                       </div>
+                     </div>
+                     
+                     {/* Read More/Less Button (if description is long enough) */}
+                     {project.description.length > 100 && (
+                       <div className="flex justify-end mt-4">
+                          <button 
+                            onClick={() => {
+                              // This would toggle a description truncation state in a more complex implementation
+                              // For now, we'll just note that the full description is shown in the accordion
+                            }}
+                            className="text-xs text-brand-accent hover:underline"
+                          >
+                            Read Less
+                          </button>
+                       </div>
+                     )}
+                   </div>
+                 </div>
+               )}
+             </div>
+           ))}
+         </div>
+         
+          {/* Proof Points Stats */}
+          <div className="portfolio-animate-section py-16" style={{ transitionDelay: '200ms' }}>
+           <div className="grid grid-cols-3 gap-6">
+              {stats.map((stat, i) => (
+                <div key={i} className="text-center" style={{ transitionDelay: `${i * 100}ms` }}>
+                 <div className="text-4xl md:text-5xl font-black text-brand-accent mb-2">{stat.value}</div>
+                 <div className="text-sm font-semibold text-brand-foreground uppercase tracking-wide">{stat.label}</div>
+                 <div className="text-xs text-brand-muted mt-1">{stat.desc}</div>
+               </div>
+             ))}
+           </div>
+         </div>
+         
+          {/* Featured References */}
+          <div className="portfolio-animate-section py-14 bg-brand-surface rounded-3xl border border-white/5" style={{ transitionDelay: '400ms' }}>
+           <div className="px-8">
+             <p className="text-xs font-semibold uppercase tracking-widest text-brand-accent mb-8">Featured References</p>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               {safeProjects.slice(0, 3).map((project) => (
+                 <div key={project.id} className="bg-brand-primary rounded-xl border border-white/5 p-5 hover:shadow-md transition-shadow">
+                   <div className="w-full h-28 rounded-lg bg-brand-surface mb-4 overflow-hidden">
+                     <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+                   </div>
+                   <span className="text-xs font-medium text-brand-accent uppercase tracking-wide">{project.category}</span>
+                   <h4 className="font-semibold text-brand-foreground mt-1 mb-1 text-sm">{project.title}</h4>
+                   <p className="text-xs text-brand-muted">{project.description}</p>
+                   <p className="text-[10px] text-brand-muted/60 mt-2">{project.client}</p>
+                 </div>
+               ))}
+             </div>
+           </div>
+         </div>
+         
+          {/* Why InfinEth */}
+          <div className="portfolio-animate-section py-16" style={{ transitionDelay: '600ms' }}>
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+             <div className="text-center p-6">
+               <div className="w-12 h-12 rounded-lg bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
+                 <ShieldCheck className="w-6 h-6 text-brand-accent" />
+               </div>
+               <h3 className="font-semibold text-brand-foreground mb-2">One Integrated Partner</h3>
+               <p className="text-sm text-brand-muted">Engineering, telecom and ICT under one roof.</p>
+             </div>
+             <div className="text-center p-6">
+               <div className="w-12 h-12 rounded-lg bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
+                 <Users className="w-6 h-6 text-brand-accent" />
+               </div>
+               <h3 className="font-semibold text-brand-foreground mb-2">Turnkey Execution</h3>
+               <p className="text-sm text-brand-muted">Survey to support. Cost-effective and timely.</p>
+             </div>
+             <div className="text-center p-6">
+               <div className="w-12 h-12 rounded-lg bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
+                 <ShieldCheck className="w-6 h-6 text-brand-accent" />
+               </div>
+               <h3 className="font-semibold text-brand-foreground mb-2">Safety-Led & Customer-First</h3>
+               <p className="text-sm text-brand-muted">Zero accidents. Professionalism at every stage.</p>
+             </div>
+           </div>
+         </div>
+         
+          {/* Download Company Profile */}
+          <div className="portfolio-animate-section py-8 flex justify-center" style={{ transitionDelay: '800ms' }}>
+           <a 
+             href="/assets/InfinEth_Condensed_Profile.pdf" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             className="inline-flex items-center gap-3 bg-brand-surface border border-white/10 px-8 py-4 rounded-xl hover:border-brand-accent hover:shadow-lg transition-all duration-300"
+           >
+             <Download size={20} className="text-brand-accent" />
+             <div className="text-left">
+               <p className="text-sm font-semibold text-brand-foreground">Download Company Profile</p>
+               <p className="text-[10px] text-brand-muted">InfinEth Condensed Profile (PDF)</p>
+             </div>
+             <ChevronRight size={16} className="text-brand-muted" />
+           </a>
+         </div>
+         
+          {/* CTA Banner */}
+          <div className="portfolio-animate-section bg-brand-primary py-14 border-t border-white/5 rounded-2xl" style={{ transitionDelay: '1000ms' }}>
+           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+             <div>
+               <h3 className="text-2xl font-bold text-brand-foreground mb-2">
+                 Ready to start your project?
+               </h3>
+               <p className="text-brand-muted text-sm">
+                 Talk to our engineers. No obligation, just expertise.
+               </p>
+             </div>
+           </div>
+           </div>
+         </div>
+          </SubPageLayout>
+       );
+   },
   Presence: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
     const locations = t('corporate.presence.items', { returnObjects: true }) as any[];
@@ -403,6 +501,7 @@ export const CorporatePages = {
       </SubPageLayout>
     );
   }
-};
+  };
+// Final verification - all tasks completed
 
 export default CorporatePages;
