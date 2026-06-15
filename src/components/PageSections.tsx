@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   History, 
   Target, 
@@ -27,6 +27,7 @@ import {
   Construction,
   Server,
   Medal,
+  Trophy,
   FileCheck,
   GraduationCap,
   Users,
@@ -39,6 +40,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { portfolioProjects } from '../data/portfolioData';
+import { unifiedPortfolioProjects } from '../data/unifiedPortfolioData';
 import { useTranslation } from 'react-i18next';
 import { SubPageLayout } from './SubPageLayout';
 import { UI_CLASSES } from '../data/constants';
@@ -230,7 +232,7 @@ Leadership: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     return (
       <SubPageLayout onBack={onBack} tag={t('corporate.leadership.tag')} title={t('corporate.leadership.title')} description={t('corporate.leadership.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
         <div className="grid md:grid-cols-3 gap-8">
-          {safeMembers.map((l, i) => (
+           {team.map((l, i) => (
             <div key={i} className="bg-brand-surface p-10 rounded-[2.5rem] border border-white/5 group shadow-sm hover:shadow-xl transition-all">
               <div className="w-16 h-16 bg-brand-primary rounded-full mb-6 flex items-center justify-center text-white font-black text-xl uppercase shadow-lg">{l.n.charAt(0)}</div>
               <h3 className={UI_CLASSES.cardTitle + " text-brand-foreground mb-1.5"}>{l.n}</h3><p className="text-brand-accent text-xs font-semibold uppercase tracking-wide mb-4">{l.r}</p><p className="text-brand-muted font-medium text-xs leading-relaxed">{l.b}</p>
@@ -250,7 +252,7 @@ Board: ({ onBack, heroImage, gradientFallback }: PageProps) => {
           <div className="absolute top-0 right-0 opacity-[0.02] pointer-events-none"><LogoSymbol className="w-80 h-80 scale-150" forceInvert={true} /></div>
           <div className="relative z-10 grid md:grid-cols-2 gap-16">
             <div className="space-y-6"><h3 className="text-h2 font-semibold tracking-tight text-brand-accent">{t('corporate.board.oversight_title')}</h3><p className="text-brand-muted font-medium leading-relaxed text-sm">{t('corporate.board.oversight_desc')}</p><div className="flex gap-4"><ShieldCheck size={32} className="text-brand-accent" /><Award size={32} className="text-brand-primary" /></div></div>
-            <div className="space-y-4">{safeItems.map(item => <div key={item} className="pb-4 border-b border-white/10 flex justify-between items-center group cursor-pointer hover:border-brand-accent transition-colors"><span className="text-lg font-bold">{item}</span><ArrowRight size={18} className="text-brand-accent group-hover:translate-x-2 transition-transform" /></div>)}</div>
+            <div className="space-y-4">             {members.map(item => <div key={item} className="pb-4 border-b border-white/10 flex justify-between items-center group cursor-pointer hover:border-brand-accent transition-colors"><span className="text-lg font-bold">{item}</span><ArrowRight size={18} className="text-brand-accent group-hover:translate-x-2 transition-transform" /></div>)}</div>
           </div>
         </div>
       </SubPageLayout>
@@ -258,125 +260,133 @@ Board: ({ onBack, heroImage, gradientFallback }: PageProps) => {
   },
 Portfolio: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
-    const safeProjects = Array.isArray(portfolioProjects) ? portfolioProjects : [];
-    const categories = ['All', 'Telecom', 'Power', 'ICT'];
-    
-    const stats = [
-      { value: '66', label: 'Stations', desc: 'Optical transmission deployed' },
-      { value: '67', label: 'Towns', desc: 'Rural electrification coverage' },
-      { value: '500+', label: 'Nodes', desc: 'Campus network deployment' },
-    ];
-    
-    return (
-      <SubPageLayout onBack={onBack} tag={t('corporate.portfolio.tag')} title={t('corporate.portfolio.title')} description={t('corporate.portfolio.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
-        {/* Portfolio Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {safeProjects.map((p, i) => (
-            <div key={p.id} className="group relative h-[320px] overflow-hidden rounded-2xl shadow-lg cursor-pointer">
-              <img src={p.image} alt={p.title} className="absolute inset-0 w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" loading="lazy" />
-              <div className="absolute inset-0 p-6 flex flex-col justify-end text-white z-10">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-accent mb-1">{p.category}</span>
-                <h3 className="text-lg font-bold mb-1 group-hover:text-brand-accent transition-colors">{p.title}</h3>
-                <p className="text-white/60 text-xs">{p.description}</p>
-                <p className="text-white/40 text-[10px] mt-2">{p.client}</p>
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Projects');
+  
+  // Filter projects based on selected category with memoization for performance
+  const filteredProjects = useMemo(() => {
+    return selectedCategory === 'All Projects'
+      ? unifiedPortfolioProjects
+      : unifiedPortfolioProjects.filter(project => 
+          project.category === 
+            (selectedCategory === 'Telecommunication' ? 'Telecom' :
+             selectedCategory === 'ICT & Datacenter' ? 'ICT' :
+             selectedCategory === 'Training' ? 'Academy' :
+             selectedCategory === 'MSP' ? 'msp' :
+             selectedCategory)
+        );
+  }, [selectedCategory, unifiedPortfolioProjects]);
+
+  return (
+    <SubPageLayout onBack={onBack} tag={t('corporate.portfolio.tag')} title={t('corporate.portfolio.title')} description={t('corporate.portfolio.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
+      {/* Hero Banner Header */}
+      <section className="relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-[#0A192F] py-20">
+        <div className="absolute inset-0">
+          <div className={`absolute inset-0 bg-gradient-to-r ${gradientFallback}`} />
+        </div>
+        <div className="absolute inset-0 flex items-center px-12 lg:px-24 max-w-7xl mx-auto">
+          <div className="text-center text-white">
+            <p className="text-brand-accent text-xs font-semibold uppercase tracking-wider mb-4">
+              INFINETH SOLUTIONS PORTFOLIO
+            </p>
+            <h1 className="text-5xl font-bold mb-6">
+              Proven Infrastructure. Engineering Excellence.
+            </h1>
+            <p className="text-white/90 text-lg leading-relaxed max-w-xl">
+              A comprehensive record of enterprise deployments across East Africa. We deliver specialized solutions across five critical infrastructure pillars, ensuring technical reliability, operational scale, and compliance with global standards for corporate managers and investment partners.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Sticky Category Navigation Bar */}
+      <div className="bg-white border-b border-white/5">
+        <div className="flex flex-wrap justify-center px-4 py-2">
+          {[ 
+            'All Projects', 
+            'Telecommunication', 
+            'Power', 
+            'ICT & Datacenter', 
+            'MSP', 
+            'Training' 
+          ].map((category, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedCategory(category)}
+              className={`mx-2 px-4 py-2 text-sm font-medium transition-all duration-200 ${selectedCategory === category 
+                ? 'text-[#00F2FE] border-b-2 border-[#00F2FE]' 
+                : 'text-[#64748B] hover:bg-white/10 hover:text-[#64748B]'}`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Project Card Grid */}
+      <section className="bg-[#F8F9FA] py-20">
+        <div className="grid gap-6 px-12 lg:px-24 max-w-7xl mx-auto sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {/* Empty State */}
+          {filteredProjects.length === 0 && (
+            <div className="col-span-3 text-center py-12">
+              <p className="text-[#64748B] text-center">
+                No projects currently available in this category.
+              </p>
+            </div>
+          )}
+          
+          {/* Project Cards */}
+          {filteredProjects.map((project, index) => (
+            <div 
+              key={index} 
+              className="group relative overflow-hidden bg-white rounded-lg shadow-md transition-all duration-400 transform hover:scale-[1.02]"
+            >
+              {/* Image Segment (16:9 aspect ratio) */}
+              <div className="w-full h-48">
+                  <img 
+                  src={project.imageUrl} 
+                  alt={project.title} 
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              
+              {/* Content Segment */}
+              <div className="p-6">
+                {/* Category Tag */}
+                <span className="inline-block mb-3 px-3 py-1 text-xs font-semibold uppercase bg-[#00F2FE]/20 text-[#00F2FE]">
+                  {project.category === 'Telecom' ? 'Telecommunication' :
+                   project.category === 'ICT' ? 'ICT & Datacenter' :
+                   project.category === 'Academy' ? 'Training' :
+                   project.category === 'msp' ? 'MSP' :
+                   project.category}
+                </span>
+                
+                {/* Project Title */}
+                <h3 className="mb-3 line-clamp-2 font-bold text-[#1E293B]">
+                  {project.title}
+                </h3>
+                
+                {/* Project Description */}
+                <p className="mb-4 line-clamp-3 text-[#64748B]">
+                  {project.description}
+                </p>
+                
+                {/* Footer Divider */}
+                <div className="h-px my-4 bg-[#E2E8F0]"></div>
+                
+                {/* Card Footer */}
+                <div className="flex justify-between text-[#64748B] text-xs">
+                  <span>Client: {project.client}</span>
+                  <span>Location: {project.location}</span>
+                </div>
               </div>
             </div>
           ))}
         </div>
-        
-        {/* Proof Points Stats */}
-        <div className="py-16">
-          <div className="grid grid-cols-3 gap-6">
-            {stats.map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-4xl md:text-5xl font-black text-brand-accent mb-2">{stat.value}</div>
-                <div className="text-sm font-semibold text-brand-foreground uppercase tracking-wide">{stat.label}</div>
-                <div className="text-xs text-brand-muted mt-1">{stat.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Reference Projects */}
-        <div className="py-14 bg-brand-surface rounded-3xl border border-white/5">
-          <div className="px-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand-accent mb-8">Featured References</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {safeProjects.slice(0, 3).map((p) => (
-                <div key={p.id} className="bg-brand-primary rounded-xl border border-white/5 p-5 hover:shadow-md transition-shadow">
-                  <div className="w-full h-28 rounded-lg bg-brand-surface mb-4 overflow-hidden">
-                    <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
-                  </div>
-                  <span className="text-xs font-medium text-brand-accent uppercase tracking-wide">{p.category}</span>
-                  <h4 className="font-semibold text-brand-foreground mt-1 mb-1 text-sm">{p.title}</h4>
-                  <p className="text-xs text-brand-muted">{p.description}</p>
-                  <p className="text-[10px] text-brand-muted/60 mt-2">{p.client}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        
-        {/* Why InfinEth */}
-        <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 rounded-lg bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
-                <ShieldCheck className="w-6 h-6 text-brand-accent" />
-              </div>
-              <h3 className="font-semibold text-brand-foreground mb-2">One Integrated Partner</h3>
-              <p className="text-sm text-brand-muted">Engineering, telecom and ICT under one roof.</p>
-            </div>
-            <div className="text-center p-6">
-              <div className="w-12 h-12 rounded-lg bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-6 h-6 text-brand-accent" />
-              </div>
-              <h3 className="font-semibold text-brand-foreground mb-2">Turnkey Execution</h3>
-              <p className="text-sm text-brand-muted">Survey to support. Cost-effective and timely.</p>
-            </div>
-            <div className="text-center p-6">
-              <div className="w-12 h-12 rounded-lg bg-brand-accent/10 flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-brand-accent" />
-              </div>
-              <h3 className="font-semibold text-brand-foreground mb-2">Safety-Led & Customer-First</h3>
-              <p className="text-sm text-brand-muted">Zero accidents. Professionalism at every stage.</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Download Company Profile */}
-        <div className="py-8 flex justify-center">
-          <a 
-            href="/assets/InfinEth_Condensed_Profile.pdf" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 bg-brand-surface border border-white/10 px-8 py-4 rounded-xl hover:border-brand-accent hover:shadow-lg transition-all duration-300"
-          >
-            <Download size={20} className="text-brand-accent" />
-            <div className="text-left">
-              <p className="text-sm font-semibold text-brand-foreground">Download Company Profile</p>
-              <p className="text-[10px] text-brand-muted">InfinEth Condensed Profile (PDF)</p>
-            </div>
-            <ChevronRight size={16} className="text-brand-muted" />
-          </a>
-        </div>
-        
-        {/* CTA Banner */}
-        <div className="bg-brand-primary py-14 border-t border-white/5 rounded-2xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <h3 className="text-2xl font-bold text-brand-foreground mb-2">
-                Ready to start your project?
-              </h3>
-              <p className="text-brand-muted text-sm">
-                Talk to our engineers. No obligation, just expertise.
-              </p>
-            </div>
-          </div>
-        </div>
-      </SubPageLayout>
-    );
-  },
+      </section>
+    </SubPageLayout>
+  );
+},
 Presence: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
     const locations = t('corporate.presence.locations', { returnObjects: true }) as any[];
@@ -384,7 +394,7 @@ Presence: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     return (
       <SubPageLayout onBack={onBack} tag={t('corporate.presence.tag')} title={t('corporate.presence.title')} description={t('corporate.presence.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
         <div className="grid md:grid-cols-4 gap-6">
-          {safeItems.map((o, i) => (
+           {locations.map((o, i) => (
             <div key={i} className="p-8 bg-brand-surface rounded-[2rem] border border-white/5 shadow-sm text-center">
               <MapPin size={28} className="text-brand-accent mx-auto mb-4" /><h3 className={UI_CLASSES.cardTitle + " text-brand-foreground mb-1"}>{o.c}</h3><p className="text-brand-muted text-[9px] font-bold uppercase tracking-widest">{o.t}</p>
             </div>
@@ -430,8 +440,11 @@ export const InfrastructurePages = {
       </SubPageLayout>
     );
   },
-OM: ({ onBack, heroImage, gradientFallback }: PageProps) => {
+  OM: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const items = t('infrastructure.om.items', { returnObjects: true }) as any[];
+    const safeItems = Array.isArray(items) ? items : [];
+    const icons = [Activity, ClipboardList, Settings, Radio];
     return (
       <SubPageLayout onBack={onBack} tag={t('infrastructure.om.tag')} title={t('infrastructure.om.title')} description={t('infrastructure.om.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
         <div className="grid lg:grid-cols-4 gap-6">
@@ -481,10 +494,11 @@ OM: ({ onBack, heroImage, gradientFallback }: PageProps) => {
 export const InnovationPages = {
 ICT: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [LayoutDashboard, Brain, Settings];
     return (
-      <SubPageLayout onBack={onBack} tag={t('innovation.ict.tag')} title={t('innovation.ict.title')} description={t('innovation.ict.description')} color="text-brand-accent" heroImage={heroImage} gradientFallback={gradientFallback}>
-         <div className="grid md:grid-cols-3 gap-8">
-            {icons.map((Icon, i) => (
+      <SubPageLayout onBack={onBack} tag={t('innovation.ict.tag')} title={t('innovation.ict.title')} description={t('innovation.ict.description')} heroImage={heroImage} gradientFallback={gradientFallback}>
+        <div className="grid md:grid-cols-3 gap-8">
+          {icons.map((Icon, i) => (
               <div key={i} className="p-10 bg-brand-surface rounded-[2rem] border border-white/5 shadow-sm hover:shadow-xl transition-all">
                 <Icon size={40} className="text-brand-accent mb-6" /><h3 className={UI_CLASSES.cardTitle + " text-brand-foreground mb-3"}>{t('innovation.ict.solution_title')} {i+1}</h3><p className="text-brand-muted font-medium text-xs">{t('innovation.ict.solution_desc')}</p>
               </div>
@@ -495,6 +509,7 @@ ICT: ({ onBack, heroImage, gradientFallback }: PageProps) => {
   },
 CoreSite: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [LayoutDashboard, Brain, Settings];
     return (
       <SubPageLayout onBack={onBack} tag={t('innovation.coresite.tag')} title={t('innovation.coresite.title')} description={t('innovation.coresite.description')} color="text-brand-accent" heroImage={heroImage} gradientFallback={gradientFallback}>
          <div className="grid md:grid-cols-3 gap-8">
@@ -509,6 +524,7 @@ CoreSite: ({ onBack, heroImage, gradientFallback }: PageProps) => {
   },
 AIoT: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [LayoutDashboard, Brain, Settings];
     return (
       <SubPageLayout onBack={onBack} tag={t('innovation.ai_iot.tag')} title={t('innovation.ai_iot.title')} description={t('innovation.ai_iot.description')} color="text-brand-accent" heroImage={heroImage} gradientFallback={gradientFallback}>
          <div className="grid md:grid-cols-3 gap-8">
@@ -523,6 +539,7 @@ AIoT: ({ onBack, heroImage, gradientFallback }: PageProps) => {
   },
 Mobility: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [LayoutDashboard, Brain, Settings];
     return (
       <SubPageLayout onBack={onBack} tag={t('innovation.mobility.tag')} title={t('innovation.mobility.title')} description={t('innovation.mobility.description')} color="text-brand-accent" heroImage={heroImage} gradientFallback={gradientFallback}>
          <div className="grid md:grid-cols-3 gap-8">
@@ -537,6 +554,7 @@ Mobility: ({ onBack, heroImage, gradientFallback }: PageProps) => {
   },
 DataCenters: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [LayoutDashboard, Brain, Settings];
     return (
       <SubPageLayout onBack={onBack} tag={t('innovation.datacenters.tag')} title={t('innovation.datacenters.title')} description={t('innovation.datacenters.description')} color="text-brand-accent" heroImage={heroImage} gradientFallback={gradientFallback}>
          <div className="grid md:grid-cols-3 gap-8">
@@ -953,6 +971,7 @@ export const ServicePages = {
 export const ExcellencePages = {
 Awards: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [Award, Medal, Trophy];
     const awards = t('excellence.awards.list', { returnObjects: true }) as string[];
     const safeAwards = Array.isArray(awards) ? awards : [];
     
@@ -970,6 +989,7 @@ Awards: ({ onBack, heroImage, gradientFallback }: PageProps) => {
   },
 ISO: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [ShieldCheck, Award, CheckCircle2];
     return (
       <SubPageLayout onBack={onBack} tag={t('excellence.iso.tag')} title={t('excellence.iso.title')} description={t('excellence.iso.description')} color="text-brand-accent" heroImage={heroImage} gradientFallback={gradientFallback}>
          <div className="grid md:grid-cols-3 gap-8">
@@ -984,6 +1004,7 @@ ISO: ({ onBack, heroImage, gradientFallback }: PageProps) => {
   },
 Academy: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [GraduationCap, Users, ClipboardList];
     return (
       <SubPageLayout onBack={onBack} tag={t('excellence.academy.tag')} title={t('excellence.academy.title')} description={t('excellence.academy.description')} color="text-brand-accent" heroImage={heroImage} gradientFallback={gradientFallback}>
          <div className="grid md:grid-cols-3 gap-8">
@@ -998,6 +1019,7 @@ Academy: ({ onBack, heroImage, gradientFallback }: PageProps) => {
   },
 Consultancy: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [Brain, Target, BarChart3];
     return (
       <SubPageLayout onBack={onBack} tag={t('excellence.consultancy.tag')} title={t('excellence.consultancy.title')} description={t('excellence.consultancy.description')} color="text-brand-accent" heroImage={heroImage} gradientFallback={gradientFallback}>
          <div className="grid md:grid-cols-3 gap-8">
@@ -1012,6 +1034,7 @@ Consultancy: ({ onBack, heroImage, gradientFallback }: PageProps) => {
   },
 EHS: ({ onBack, heroImage, gradientFallback }: PageProps) => {
     const { t } = useTranslation();
+    const icons = [Stethoscope, TreePine, HardHat];
     return (
       <SubPageLayout onBack={onBack} tag={t('excellence.ehs.tag')} title={t('excellence.ehs.title')} description={t('excellence.ehs.description')} color="text-brand-accent" heroImage={heroImage} gradientFallback={gradientFallback}>
          <div className="grid md:grid-cols-3 gap-8">

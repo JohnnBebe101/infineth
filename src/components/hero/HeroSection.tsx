@@ -58,25 +58,46 @@ return (
        {/* Static LCP background - no motion wrapper for immediate render */}
        <div className="absolute inset-0">
          <div className={`absolute inset-0 bg-gradient-to-br ${activeSlide.fallbackGradient} opacity-50`} />
-         <motion.div
-           className="absolute inset-0"
-           initial={{ scale: 1 }}
-           animate={{ scale: ANIM.IMAGE_ZOOM_SCALE[1] }}
-           transition={{ duration: ANIM.IMAGE_ZOOM_DURATION / 1000, ease: "easeOut" }}
-         >
-           <img
-             src={activeSlide.image}
-             srcSet={generateSrcSet(activeSlide.image)}
-             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1920px"
-             alt={activeSlide.caption}
-             className="w-full h-full object-cover object-center"
-             loading="eager"
-             fetchPriority="high"
-             decoding="async"
-             width="1920"
-             height="1080"
-           />
-         </motion.div>
+<motion.div
+            className="absolute inset-0"
+            initial={{ scale: 1 }}
+            animate={{ scale: ANIM.IMAGE_ZOOM_SCALE[1] }}
+            transition={{ duration: ANIM.IMAGE_ZOOM_DURATION / 1000, ease: "easeOut" }}
+          >
+            {activeSlide.id === 1 ? (
+              <picture>
+                <source
+                  media="(min-width: 1200px)"
+                  srcSet="/assets/images/hero/_1920/hero-overview-1.webp"
+                />
+                <img
+                  src={activeSlide.image}
+                  srcSet={generateSrcSet(activeSlide.image)}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1920px"
+                  alt={activeSlide.caption}
+                  className="w-full h-full object-cover object-center"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  width="1920"
+                  height="1080"
+                />
+              </picture>
+            ) : (
+              <img
+                src={activeSlide.image}
+                srcSet={generateSrcSet(activeSlide.image)}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1920px"
+                alt={activeSlide.caption}
+                className="w-full h-full object-cover object-center"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                width="1920"
+                height="1080"
+              />
+            )}
+          </motion.div>
          <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/25 to-brand-primary/80" />
        </div>
       
